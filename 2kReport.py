@@ -7,64 +7,90 @@ import matlibplot.pyplot as plt
 from matplotlib import rcParams
 import statistics as stat
 import pandas as pd
-import collectFileNames
-
-
-
-"""
-class 2kResult:
-	def __init__(self, name, weight, 500Time, 1000Time, 1500Time, 2000Time):
-		self.name = name
-		self.weight = weight
-		self.times = [500Time, 1000Time, 1500Time, 2000Time]
-
-	def calcSplits(self):
-		500Split = 500Time
-		1000Split = 1000Time - 500Time
-		1500Split = 1500Time - 1000Time
-		2000Split = 2000Time - 1500Time
-		self.splits = [500Split, 1000Split, 1500Split, 2000Split]
-
-	def calcAverage(self)
-		self.average500 = 2000Time/4
-
-	def stdDevSplit
-		self.stdDev500 = stat.stdev(splits)
-
-	def 
-"""
-
-
-
-
-try:
-	droppedFile = sys.argv[1]
-
-	2kData = pd.read_json(droppedFile)
-except:
-	
-
-
-
-2kData.head()
+import 2kHelper as 2k
 
 
 # get data
+columnHeaders = []
+2kData = pd.DataFrame(columnHeaders)
+dataFilename = ""
 
+try:
+	droppedFile = sys.argv[1]
+	2kData.append(pd.read_json(droppedFile))
+	dataFilename = droppedFile
+except:
+	files = collectFiles.names()
+	for name in files:
+		tempData = pd.read_json(name)
+		tempColumnHeaders = 2kData.columns.values
+		if list(tempColumnHeaders) == columnHeaders:
+			2kData.append(tempData)
+		else:
+			print("Skipping {0}, incorrect filetype", name)
+	dataFIlename = "2k Results"
+
+# slicing data to remove unnecessary 
+sliceParticipants(2kData)
+
+
+
+# add weight data since it isn't in the 2k results 
+
+try:
+	weightData = pd.read_excel('weights.xlsx')
+	2kData.merge(weightData[['Weight', 'Name']], how = 'left')
+except:
+	raise Exception("Missing weight data")
+
+
+
+
+#2kData.head()
+
+2k.weights
+
+# plot manipulation
 rcParams['axes.spines.top'] = False
 rcParams['axes.spines.right'] = False
 
 def plot(data: pd.DataFrame, filename: str) -> None:
-    plt.figure(figsize=(12, 4))
-    plt.grid(color='#F2F2F2', alpha=1, zorder=0)
-    plt.plot(data['Date'], data['ItemsSold'], color='#087E8B', lw=3, zorder=5)
-    plt.title(f'Sales 2020/{data["Date"].dt.month[0]}', fontsize=17)
-    plt.xlabel('Period', fontsize=13)
-    plt.xticks(fontsize=9)
-    plt.ylabel('Number of items sold', fontsize=13)
-    plt.yticks(fontsize=9)
-    plt.savefig(filename, dpi=300, bbox_inches='tight', pad_inches=0)
-    plt.close()
-    return
+	plt.figure(figsize=(12, 4))
+	plt.grid(color='#F2F2F2', alpha=1, zorder=0)
+	plt.plot(data['Name'], data['500'],data['1000'],data['1500'],data['2000'], color='#087E8B', lw=3, zorder=5)
+	plt.title(f'2k Pace', fontsize=17)
+	plt.xlabel('Distance [m]', fontsize=13)
+	plt.xticks(fontsize=9)
+	plt.ylabel('Pace [sec/500m]', fontsize=13)
+	plt.yticks(fontsize=9)
+	plt.savefig(filename, dpi=300, bbox_inches='tight', pad_inches=0)
+	plt.close()
+	return
 
 #plot 2ks by eight 
+2kData.sort_values([''])
+athleteCount= = len(2kData.index)
+currentIndex = 0
+for ii in range(athleteCount):
+	plotData = 2kData.iloc[currentIndex:(currentIndex+8)]
+	filename = dataFilename + " " + currentIndex "-" + (currentIndex + 7)
+	plot(plotData,filename)
+	currentIndex += 8
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
