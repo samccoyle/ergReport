@@ -43,8 +43,8 @@ def import_df(filename):
 	    record_path=['results' , 'participants'])
 
 	#expanding the list of dicts in the splits column
-	flat_dicts = expand_splits(data['splits'])
-	expanded_df = pd.DataFrame(flat_dicts)
+	flat_splits = expand_splits(data['splits'])
+	expanded_df = pd.DataFrame(flat_splits)
 
 	#merging the expanded data into the previous data
 	names = data['participant']
@@ -53,6 +53,11 @@ def import_df(filename):
 	del data['splits']
 	final_df = data.merge(expanded_df, how='left' , left_on=['participant'], right_on=['participant'])
 	return final_df
+
+def time_convert(time_data):
+	datetime_data = time_data.applymap(lambda index:datetime.strptime(index, "%M:%S.%f"))
+	return datetime_data
+
 
 def squads():
  #return: men, women, novice varsity 
