@@ -10,6 +10,10 @@ import pandas as pd
 from raceFunc import *
 from datetime import datetime
 
+# flags
+multi_file = False
+weight_data = False
+
 # get data
 input_filenames = fileNames()
 
@@ -19,33 +23,41 @@ for file in input_filenames:
 	temp_df = import_df(file)
 	if df.empty:
 		df = temp_df
-		print('Replaced')
 	else:
 		df = pd.concat([df,temp_df],ignore_index=True)
-		print('Added')
-print(df.head(20))
+		print('Added {0}',file)
+		multi_file = True
 
 # add weight data since it isn't in the 2k results 
 try:
 	weightData = pd.read_excel('Weights.xlsx')
-	print("Weight Data")
-	print(weightData.head(20))
 	df.merge(weightData, how='left', left_on='participant', right_on='Name')
 except:
-	print('Failed to add weight data')
+	print('Failed to add weight data, skipping')
+	weight_data = True
 
+#correcting time data
+#not using to_datetime since %m%d%y %H data is missing
+df.loc[:, df.columns.str.startswith(str('split_avg_pace_'))] = time_convert(
+	df.loc[:, df.columns.str.startswith(str('split_avg_pace_'))])
+
+df['time'] = time_convert(df['time'])
 
 # add calculations to 2k results
-print('hello')
-#not using to_datetime since %m%d%y %H data is missing
-temp = df.loc[:, df.columns.str.startswith(str('split_avg_pace_'))].applymap(lambda index:datetime.strptime(index, "%M:%S.%f"))
-df.loc[:, df.columns.str.startswith(str('split_avg_pace_'))] = temp
 
+# standard deviation data 
 df['stdDev500'] = df.loc[:, df.columns.str.startswith(str('split_avg_pace_'))].std(axis=1)
 print(df.head(20))
-#print(temp.head(20))
-#['stdDev500']
+
+#weight conversion
+
+
+
+
+# saving data
 df.to_excel('results.xlsx')
+
+
 
 with pd.ExcelWriter("results.xlsx", if_sheet_exists="replace") as writer:
 	df.to_excel(writer)
