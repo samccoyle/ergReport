@@ -5,6 +5,7 @@ import pandas as pd
 import glob
 from pathlib import Path
 import json
+from datetime import datetime, timedelta
 
 def fileNames():
 	files = []
@@ -58,6 +59,25 @@ def time_convert(time_data):
 	datetime_data = time_data.applymap(lambda index:datetime.strptime(index, "%M:%S.%f"))
 	return datetime_data
 
+def adjust_time(conversion_factor,duration):
+	df = pd.concat([conversion_factor, duration], join='outer', axis=1)
+	adjusted_times = []
+	for factor, time in df.itertuples(index=False):
+		print(factor)
+		print(time)
+		try:
+			adjusted_time = time + timedelta(seconds=timedelta(minutes=time.minute, seconds=time.second, microseconds=time.microsecond).total_seconds() * (factor - 1))
+		except:
+			adjusted_time = time
+		adjusted_times.append(adjusted_time)
+	print(adjusted_times)
+
+	converted_times = pd.DataFrame(adjusted_times, columns=['adjusted timestamps'])
+	converted_times['adjusted times'] = pd.to_datetime(converted_times['adjusted timestamps'])
+	print('converted times')
+
+	print(converted_times.head(20))
+	return converted_times['adjusted times']
 
 def squads():
  #return: men, women, novice varsity 

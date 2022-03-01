@@ -1,4 +1,3 @@
-import os
 import sys
 import numpy as np
 from datetime import datetime as dt
@@ -8,7 +7,7 @@ from matplotlib import rcParams
 import statistics as stat
 import pandas as pd
 from raceFunc import *
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # flags
 multi_file = False
@@ -29,19 +28,22 @@ for file in input_filenames:
 		multi_file = True
 
 # add weight data since it isn't in the 2k results 
-try:
-	weightData = pd.read_excel('Weights.xlsx')
-	df.merge(weightData, how='left', left_on='participant', right_on='Name')
-except:
-	print('Failed to add weight data, skipping')
-	weight_data_exists = True
+#try:
+weightData = pd.read_excel('Weights.xlsx')
+print(weightData)
+df = pd.merge(df, weightData, how='left', on='participant')
+weight_data_exists = True
+print(df['weight'].head(20))
+#except:
+#	print('Failed to add weight data, skipping')
+
 
 #correcting time data
 #not using to_datetime since %m%d%y %H data is missing
-df.loc[:, df.columns.str.startswith(str('split_avg_pace_'))] = time_convert(
-	df.loc[:, df.columns.str.startswith(str('split_avg_pace_'))])
-
-df['time'] = time_convert(df['time'])
+temp = df.loc[:, df.columns.str.startswith(str('split_avg_pace_'))].applymap(lambda index:datetime.strptime(index, "%M:%S.%f"))
+df.loc[:, df.columns.str.startswith(str('split_avg_pace_'))] = temp
+df['time'] = df['time'].apply(lambda index:datetime.strptime(index, "%M:%S.%f"))
+df['avg_pace'] = df['avg_pace'].apply(lambda index:datetime.strptime(index, "%M:%S.%f"))
 
 # add calculations to 2k results
 
@@ -52,9 +54,8 @@ print(df.head(20))
 #weight conversion
 if weight_data_exists:
 	df['conversion factor'] = df['weight'].div(270).pow(0.222)
-	df['converted score'] = df['conversion factor'].mul(df['score'])
-	df['converted pace'] = df['conversion factor'].mul(df['avg_pace'])
-
+	df['adjusted score'] = adjust_time(df['conversion factor'],df['time'])
+	df['adjusted pace'] = adjust_time(df['conversion factor'],df['avg_pace'])
 
 # saving data
 df.to_excel('results.xlsx')
