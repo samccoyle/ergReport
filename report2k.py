@@ -12,7 +12,7 @@ from datetime import datetime
 
 # flags
 multi_file = False
-weight_data = False
+weight_data_exists = False
 
 # get data
 input_filenames = fileNames()
@@ -34,7 +34,7 @@ try:
 	df.merge(weightData, how='left', left_on='participant', right_on='Name')
 except:
 	print('Failed to add weight data, skipping')
-	weight_data = True
+	weight_data_exists = True
 
 #correcting time data
 #not using to_datetime since %m%d%y %H data is missing
@@ -50,8 +50,10 @@ df['stdDev500'] = df.loc[:, df.columns.str.startswith(str('split_avg_pace_'))].s
 print(df.head(20))
 
 #weight conversion
-
-
+if weight_data_exists:
+	df['conversion factor'] = df['weight'].div(270).pow(0.222)
+	df['converted score'] = df['conversion factor'].mul(df['score'])
+	df['converted pace'] = df['conversion factor'].mul(df['avg_pace'])
 
 
 # saving data
