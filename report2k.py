@@ -72,7 +72,9 @@ if weight_data_exists:
 	df['8 pace'] = adjust_time(df['conversion factor 8'],df['avg_pace'])
 
 # filtering data for saving
-string_to_filter = ['id',
+string_to_filter = []
+"""
+['id',
 	'calories',
 	'class',
 	'lane',
@@ -87,7 +89,14 @@ string_to_filter = ['id',
 	'drag',
 	'runningtime',
 	'_time_']
+"""
+# reading in columsn to ignore
+with open('columns_ignore.txt') as f:
+	string_to_filter = [line.strip('\n') for line in f]
 
+print(string_to_filter)
+#for line in lines:
+	
 mask = []
 for text in string_to_filter:
 
@@ -97,7 +106,6 @@ for text in string_to_filter:
 		mask = mask + mask_text	
 	else:
 		mask = mask_text
-	print(mask)
 
 mask = np.logical_not(mask)
 
