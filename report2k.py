@@ -72,27 +72,47 @@ if weight_data_exists:
 	df['8 pace'] = adjust_time(df['conversion factor 8'],df['avg_pace'])
 
 # filtering data for saving
-string_to_filter = ['id, 
+string_to_filter = ['id',
 	'calories',
 	'class',
 	'lane',
 	'log',
 	'machine',
 	'serial',
-	'running']
-temp2 = df.columns.str.startswith(str('split_avg_pace_'))
-temp3 = temp2.copy()
-temp2[1] = True
-temp3[2] = True
-temp4 = temp2 + temp3
-print(temp2)
-print(temp3)
-print(temp4)
+	'running'
+	'factor',
+	'count',
+	'distance',
+	'type',
+	'drag',
+	'runningtime',
+	'_time_']
+
+mask = []
+for text in string_to_filter:
+
+	mask_text = column_name_mask(text,df)
+	print(mask_text)
+	if len(mask) > 0:
+		mask = mask + mask_text	
+	else:
+		mask = mask_text
+	print(mask)
+
+mask = np.logical_not(mask)
+
+print(mask)
+
+final_df = df.loc[:, mask]
+print(final_df.head())
+print(df.head())
+
+
 
 #saving data
 with pd.ExcelWriter("results.xlsx", if_sheet_exists="replace") as writer:
-	df.to_excel(writer)
-
+	final_df.to_excel(writer)
+print("saved to excel")
 
 """
 plot 2ks by eight

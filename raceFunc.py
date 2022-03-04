@@ -1,3 +1,4 @@
+
 import numpy as np
 import os
 import sys
@@ -72,6 +73,18 @@ def adjust_time(conversion_factor,duration):
 #	print('converted times')
 #	print(converted_times.head(20))
 	return converted_times['adjusted times']
+
+def column_name_mask(text, df):
+	print(text)
+	try:
+		temp = df.columns.str.contains(str(text))
+
+	except:
+		temp = df.columns.str.startswith(str(text))
+		print('failed')
+	print(temp)
+	return temp
+
 
 def squads():
  #return: men, women, novice varsity 
