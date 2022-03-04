@@ -1,3 +1,7 @@
+#txt files to upload
+!columns_ignore.txt
+
+
 #added files 
 *.json
 *.xlsx
