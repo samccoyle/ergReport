@@ -9,6 +9,11 @@ import pandas as pd
 from raceFunc import *
 from datetime import datetime, timedelta
 
+#constansts
+cox_weight = 130
+boat_weight_8 = 200
+boat_weight_4 = 125
+
 # flags
 multi_file = False
 weight_data_exists = False
@@ -24,18 +29,19 @@ for file in input_filenames:
 		df = temp_df
 	else:
 		df = pd.concat([df,temp_df],ignore_index=True)
-		print('Added {0}',file)
+		#print('Added {0}',file)
 		multi_file = True
 
-# add weight data since it isn't in the 2k results 
-#try:
-weightData = pd.read_excel('Weights.xlsx')
-print(weightData)
-df = pd.merge(df, weightData, how='left', on='participant')
-weight_data_exists = True
-print(df['weight'].head(20))
-#except:
-#	print('Failed to add weight data, skipping')
+# add weight data since it isn't in the 2k results
+try:
+	weightData = pd.read_excel('Weights.xlsx')
+	df = pd.merge(df, weightData, how='left', on='participant')
+	weight_data_exists = True
+	df['boat weight 4'] = df['weight'] + cox_weight/4 + boat_weight_4/4
+	df['boat weight 8'] = df['weight'] + cox_weight/8 + boat_weight_8/8
+	print("Added weights")
+except:
+	print('Failed to add weight data, skipping')
 
 
 #correcting time data
@@ -49,19 +55,41 @@ df['avg_pace'] = df['avg_pace'].apply(lambda index:datetime.strptime(index, "%M:
 
 # standard deviation data 
 df['stdDev500'] = df.loc[:, df.columns.str.startswith(str('split_avg_pace_'))].std(axis=1)
-print(df.head(20))
 
 #weight conversion
 if weight_data_exists:
+
 	df['conversion factor'] = df['weight'].div(270).pow(0.222)
+	df['conversion factor 4']= df['boat weight 4'].div(270).pow(0.222)
+	df['conversion factor 8']= df['boat weight 8'].div(270).pow(0.222)
+
 	df['adjusted score'] = adjust_time(df['conversion factor'],df['time'])
+	df['4 score'] = adjust_time(df['conversion factor 4'],df['time'])
+	df['8 score'] = adjust_time(df['conversion factor 8'],df['time'])
+
 	df['adjusted pace'] = adjust_time(df['conversion factor'],df['avg_pace'])
+	df['4 pace'] = adjust_time(df['conversion factor 4'],df['avg_pace'])
+	df['8 pace'] = adjust_time(df['conversion factor 8'],df['avg_pace'])
 
-# saving data
-df.to_excel('results.xlsx')
+# filtering data for saving
+string_to_filter = ['id, 
+	'calories',
+	'class',
+	'lane',
+	'log',
+	'machine',
+	'serial',
+	'running']
+temp2 = df.columns.str.startswith(str('split_avg_pace_'))
+temp3 = temp2.copy()
+temp2[1] = True
+temp3[2] = True
+temp4 = temp2 + temp3
+print(temp2)
+print(temp3)
+print(temp4)
 
-
-
+#saving data
 with pd.ExcelWriter("results.xlsx", if_sheet_exists="replace") as writer:
 	df.to_excel(writer)
 
