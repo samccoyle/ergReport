@@ -2,7 +2,7 @@
 !columns_ignore.txt
 
 #Exceptions for the example folder
-!Example/
+!Example/**
 
 
 test.py
