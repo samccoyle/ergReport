@@ -1,6 +1,6 @@
 #txt files to upload
 !columns_ignore.txt
-
+test.py
 
 #added files 
 *.json
