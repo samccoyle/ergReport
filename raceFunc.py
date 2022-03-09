@@ -35,7 +35,7 @@ def expand_splits(splits_col):
 	return flat_dicts
 
 def import_df(filename):
-	#create a data frame from a file 
+	#create a data frame from a file
 	f = open(filename)
 	data_import = json.load(f)
 	data = pd.json_normalize(
@@ -70,25 +70,44 @@ def adjust_time(conversion_factor,duration):
 
 	converted_times = pd.DataFrame(adjusted_times, columns=['adjusted timestamps'])
 	converted_times['adjusted times'] = pd.to_datetime(converted_times['adjusted timestamps'])
-#	print('converted times')
-#	print(converted_times.head(20))
 	return converted_times['adjusted times']
 
 def column_name_mask(text, df):
-	print(text)
 	try:
 		temp = df.columns.str.contains(str(text))
 
 	except:
 		temp = df.columns.str.startswith(str(text))
 		print('failed')
-	print(temp)
 	return temp
+
+def filter_columns(df):
+	# reading in columsn to ignore
+	try:
+		with open('columns_ignore.txt') as f:
+		    string_to_filter = [line.strip('\n') for line in f]
+		print('Read in filtered columns')
+	except:
+		print('Failed to read in filtered columns, no filter applied')
+		return df
+
+	mask = []
+	for text in string_to_filter:
+	    mask_text = column_name_mask(text,df)
+	    if len(mask) > 0:
+	        mask = mask + mask_text
+	    else:
+	        mask = mask_text
+
+	mask = np.logical_not(mask)
+
+	final_df = df.loc[:, mask]
+	return final_df
 
 
 def squads():
- #return: men, women, novice varsity 
-	return 0 
+ #return: men, women, novice varsity
+	return 0
 
 
 

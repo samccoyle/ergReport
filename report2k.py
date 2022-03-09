@@ -29,7 +29,6 @@ for file in input_filenames:
 		df = temp_df
 	else:
 		df = pd.concat([df,temp_df],ignore_index=True)
-		#print('Added {0}',file)
 		multi_file = True
 
 # add weight data since it isn't in the 2k results
@@ -90,36 +89,15 @@ string_to_filter = []
 	'runningtime',
 	'_time_']
 """
-# reading in columsn to ignore
-with open('columns_ignore.txt') as f:
-	string_to_filter = [line.strip('\n') for line in f]
-
-print(string_to_filter)
-#for line in lines:
-	
-mask = []
-for text in string_to_filter:
-
-	mask_text = column_name_mask(text,df)
-	print(mask_text)
-	if len(mask) > 0:
-		mask = mask + mask_text	
-	else:
-		mask = mask_text
-
-mask = np.logical_not(mask)
-
-print(mask)
-
-final_df = df.loc[:, mask]
-print(final_df.head())
-print(df.head())
+#filtering columns for excel
+filtered_df = filter_columns(df)
+filtered_df = filtered_df.sort_values(by=['score'])
 
 
 
 #saving data
 with pd.ExcelWriter("results.xlsx", if_sheet_exists="replace") as writer:
-	final_df.to_excel(writer)
+	filtered_df.to_excel(writer)
 print("saved to excel")
 
 """
