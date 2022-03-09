@@ -11,7 +11,7 @@ test.py
 *.json
 *.xlsx
 *.save
-*~
+*~*
 .spec
 
 # Byte-compiled / optimized / DLL files
