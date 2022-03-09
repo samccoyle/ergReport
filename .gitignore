@@ -1,5 +1,10 @@
 #txt files to upload
 !columns_ignore.txt
+
+#Exceptions for the example folder
+!Example/
+
+
 test.py
 
 #added files 

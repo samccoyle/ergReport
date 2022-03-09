@@ -13,11 +13,20 @@ from datetime import datetime, timedelta
 # flags
 multi_file = False
 weight_data_exists = False
+example = False
 
-
+#Checkign if it is an example
+try:
+	if(sys.argv[1] == '-e'):
+		os.chdir('Example')
+		print('Running example')
+except:
+	pass
 ## Adding data
 # get data
 input_filenames = fileNames()
+print('Race files read in:')
+print(input_filenames)
 
 #add data to data frame
 df = pd.DataFrame()
@@ -70,7 +79,7 @@ filtered_df = filtered_df.sort_values(by=['score'])
 #saving data
 with pd.ExcelWriter("results.xlsx", if_sheet_exists="replace") as writer:
 	filtered_df.to_excel(writer)
-print("saved to excel")
+print("Saved to excel")
 
 """
 TODO add plotting and export to pdf

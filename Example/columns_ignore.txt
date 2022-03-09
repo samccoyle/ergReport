@@ -1,0 +1,15 @@
+id
+calories
+class
+lane
+log
+machine
+serial
+running
+factor
+count
+distance
+type
+drag
+runningtime
+_time_

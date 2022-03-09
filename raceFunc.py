@@ -10,16 +10,12 @@ from datetime import datetime, timedelta
 
 def fileNames():
 	files = []
-	try:
-		#check for a drag and drop file
-	    files += sys.argv[1]
-	except:
-		#	find all files ending in a certain extension
-		folder = Path().absolute()
-		for file in glob.glob("*.json"):
-			files.append(file)
-		for file in glob.glob("*.JSON"):
-			files.append(file)
+	#	find all files ending in a certain extension
+	folder = Path().absolute()
+	for file in glob.glob("*.json"):
+		files.append(file)
+	for file in glob.glob("*.JSON"):
+		files.append(file)
 	return files
 
 def expand_splits(splits_col):
